@@ -1,0 +1,8 @@
+build/
+libs/*
+
+*.o
+*.exe
+*.zip
+
+!.gitkeep
