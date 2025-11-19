@@ -4,7 +4,8 @@
             "name": "Win32",
             "includePath": [
                 "${default}",
-                "${workspaceFolder}/libs/SDL/x86_64-w64-mingw32/include"
+                "${workspaceFolder}/libs/SDL/x86_64-w64-mingw32/include",
+                "${workspaceFolder}/libs/stb"
             ],
             "defines": [
                 "_DEBUG",

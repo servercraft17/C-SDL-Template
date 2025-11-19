@@ -4,7 +4,8 @@ SDLPATH = libs/SDL/x86_64-w64-mingw32
 
 CFLAGS := \
 
-inc := \
+inc := -I src \
+	-I libs/stb \
 	-I $(SDLPATH)/include \
 
 # OS agnostics
@@ -22,8 +23,6 @@ endif
 rwildcard=$(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d))
 rdwildcard=$(sort $(dir $(call rwildcard,$1,$2)))
 rsubsuffix=$(sort $(filter-out $(addprefix %,$1),$(foreach s,$1,$(patsubst $(addprefix %,$s),$(addprefix %,$2),$3))))
-
-
 
 OBJS = $(call rsubsuffix,.c,.o,$(subst src,build,$(call rwildcard,src,*.c)))
 COMPILE = $(CC) -c $< -o $@ $(inc) $(CFLAGS)
@@ -44,3 +43,4 @@ run: build/$(EXECNAME)
 # ################
 
 build/main.o : src/main.c ; $(COMPILE)
+build/utils.o : src/utils.c ; $(COMPILE)

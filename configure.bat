@@ -8,4 +8,8 @@ del SDL.zip
 
 cd ..
 
+mkdir libs\stb
+curl -Lo libs/stb/stb_image.h https://raw.githubusercontent.com/nothings/stb/refs/heads/master/stb_image.h
+curl -Lo libs/stb/stb_image_resize2.h https://raw.githubusercontent.com/nothings/stb/refs/heads/master/stb_image_resize2.h
+
 copy libs\SDL\x86_64-w64-mingw32\bin\SDL3.dll build
