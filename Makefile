@@ -6,6 +6,7 @@ CFLAGS := \
 
 inc := -I src \
 	-I libs/stb \
+	-I libs/cglm/include \
 	-I $(SDLPATH)/include \
 
 # OS agnostics
@@ -28,7 +29,7 @@ OBJS = $(call rsubsuffix,.c,.o,$(subst src,build,$(call rwildcard,src,*.c)))
 COMPILE = $(CC) -c $< -o $@ $(inc) $(CFLAGS)
 
 build/$(EXECNAME): $(OBJS)
-	$(CC) $^ -o $@ $(SDLPATH)/lib/libSDL3.dll.a
+	$(CC) $^ -o $@ $(SDLPATH)/lib/libSDL3.dll.a build/libcglm.dll.a
 
 .PHONY: clean
 clean:
