@@ -21,9 +21,8 @@ del cglm.zip
 
 cmake -Scglm -Bcglm/build -G"MinGW Makefiles" -DCMAKE_MAKE_PROGRAM=make
 cd cglm/build && make
-cd ../..
 
-cd ..
+cd ../../..
 
 copy libs\cglm\build\libcglm.dll.a build
 copy libs\cglm\build\libcglm-0.dll build
