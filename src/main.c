@@ -1,29 +1,30 @@
 #include <SDL3/SDL.h>
+#include <stdio.h>
 
-SDL_Window* window = NULL;
-SDL_Renderer* renderer = NULL;
+#include "game.h"
 
-double deltaTime = 0.0f;
-float avgfps = 0.0f;
-int fps = 0;
+game_t game = {0};
 
-int tick();
-int render(SDL_Renderer* renderer);
+void tick();
+void render(SDL_Renderer* renderer);
 
 int main() {
+    game.exit = false;
+    game.fps_cap = 144;
+    game.show_debug_info = true;
     if (!SDL_Init(SDL_INIT_VIDEO)) {
         SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "Failed to initialize SDL, %s", SDL_GetError());
         return -1;
     }
     
-    window = SDL_CreateWindow("IDK", 800, 600, 0);
-    if (!window) {
+    game.window = SDL_CreateWindow("IDK", 800, 600, 0);
+    if (!game.window) {
         SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "Failed to initialize window, %s", SDL_GetError());
         return -2;
     }
 
-    renderer = SDL_CreateRenderer(window, NULL);
-    if (!renderer) {
+    game.renderer = SDL_CreateRenderer(game.window, NULL);
+    if (!game.renderer) {
         SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "Failed to initialize renderer, %s", SDL_GetError());
         return -3;
     }
@@ -35,47 +36,70 @@ int main() {
     int frameCountTotal = 0;
     int frameCount = 0;
 
-    bool running = true;
-    while (running) {
+    while (!game.exit) {
 
         lastTime = nowTime;
         nowTime = SDL_GetPerformanceCounter();
 
-        deltaTime = ((nowTime - lastTime)*1000 / (double)SDL_GetPerformanceFrequency() );
+        game.deltaTime = ((nowTime - lastTime)*1000 / (double)SDL_GetPerformanceFrequency() );
 
-        // events
-        for (SDL_Event ev; SDL_PollEvent(&ev);) {
-            if (ev.type == SDL_EVENT_QUIT) running = false;
-        }
         // logic / tick
-        render(renderer);
+        Uint64 beginTime = SDL_GetPerformanceCounter();
+        tick();
+        render(game.renderer);
         frameCountTotal++;
         frameCount++;
+        Uint64 endTime = SDL_GetPerformanceCounter();
+        game.fps_avg = frameCountTotal / ((SDL_GetTicks() - startTicks) / 1000.f);
 
-        avgfps = frameCountTotal / ((SDL_GetTicks() - startTicks) / 1000.f);
 
         Uint64 nowTicks = SDL_GetTicks();
 
         if (nowTicks - lastTicks >= 1000) {
-            fps = frameCount;
+            game.fps = frameCount;
             frameCount = 0;
             lastTicks = nowTicks;
         }
 
-        SDL_Log("Dt: %f\nfps avg: %f\nfps: %d", deltaTime, avgfps, fps);
+        
+        float elapsedTime = (endTime - beginTime) / ((float) SDL_GetPerformanceFrequency() * 1000.0f);
+        if (game.fps_cap != 0) SDL_Delay(floorf((1000.f / (float)game.fps_cap) - elapsedTime));
     }
 
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
+    SDL_DestroyRenderer(game.renderer);
+    SDL_DestroyWindow(game.window);
     SDL_Quit();
 
     return 0;
 }
 
-int render(SDL_Renderer* renderer) {
+void render(SDL_Renderer* renderer) {
     SDL_SetRenderDrawColor(renderer, 64, 0, 175, 255);
     SDL_RenderClear(renderer);
 
+    if (game.show_debug_info) {
+        int x = 25;
+        int y = 25;
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        char dbg_S[256];
+        sprintf(&dbg_S, "fps: %d", game.fps);
+        SDL_RenderDebugText(renderer, x, y, dbg_S);
+        y+=10;
+        sprintf(&dbg_S, "avg: %f", game.fps_avg);
+        SDL_RenderDebugText(renderer, x, y, dbg_S);
+        y+=10;
+        sprintf(&dbg_S, "dT: %f", game.deltaTime);
+        SDL_RenderDebugText(renderer, x, y, dbg_S);
+        y+=10;
+    }
+
     SDL_RenderPresent(renderer);
-    return 0;
+}
+
+void tick() {
+    // events
+    for (SDL_Event ev; SDL_PollEvent(&ev);) {
+        if (ev.type == SDL_EVENT_QUIT) game.exit = true;
+    }
+    // logic
 }

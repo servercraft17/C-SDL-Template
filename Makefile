@@ -44,3 +44,4 @@ run: build/$(EXECNAME)
 
 build/main.o : src/main.c ; $(COMPILE)
 build/utils.o : src/utils.c ; $(COMPILE)
+build/game.o : src/game.c ; $(COMPILE)
